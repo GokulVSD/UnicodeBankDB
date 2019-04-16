@@ -4,8 +4,13 @@ import static spark.Spark.*;
 public class App {
 
     public static void main(String[] args) {
+        staticFileLocation("/public");
         CustomerDB c = new DBD();
         AccountDB d = new DBD();
-        get("/hello", (req, res) -> "Hello World" + c.doesCustomerExist("Gokul"));
+        get("/", (req, res) -> {
+            res.redirect("/login.html");
+            return " ";
+        });
+
     }
 }
