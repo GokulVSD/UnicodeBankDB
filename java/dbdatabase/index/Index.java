@@ -53,8 +53,14 @@ public class Index extends FileCreator{
     }
 
     public boolean doesAccountExist(String accountNo){
-        for(String s:entries)
-            if(s.contains(accountNo)) return true;
+        for(String s:entries){
+            StringTokenizer st = new StringTokenizer(s, ":");
+            st.nextToken(); st.nextToken();
+            while(st.hasMoreTokens()){
+                if(st.nextToken().equals(accountNo)) return true;
+                st.nextToken();
+            }
+        }
         return false;
     }
 
@@ -68,8 +74,10 @@ public class Index extends FileCreator{
     }
 
     public boolean doesCustomerExist(String customerID){
-        for(String s:entries)
-            if(s.contains(customerID)) return true;
+        for(String s:entries){
+            StringTokenizer st = new StringTokenizer(s, ":");
+            if(st.nextToken().equals(customerID)) return true;
+        }
         return false;
     }
 
