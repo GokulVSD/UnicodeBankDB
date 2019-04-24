@@ -81,3 +81,14 @@ function getSystemLogs(){
         		}
     });
 }
+
+function manageCustomer(){
+    $('#options button').prop('disabled', true);
+    $.ajax({
+            		type: 'GET',
+            		url: '/getallcustomers',
+            		success: function(response){
+                        $('#admin-dynamic-1').html(response);
+            		}
+    });
+}

@@ -13,6 +13,8 @@ import dbdatabase.index.IndexEntry;
 import java.io.File;
 import java.io.FileWriter;
 import java.time.LocalDateTime;
+import java.util.LinkedList;
+import java.util.StringTokenizer;
 
 public class DBD implements AccountDB,CustomerDB {
 
@@ -483,6 +485,34 @@ public class DBD implements AccountDB,CustomerDB {
             }
             status = true;
             return;
+        }
+    }
+
+    public LinkedList<String> getListOfAllCustomers(){
+        while (true) {
+            try {
+                LinkedList<String> customers = new LinkedList<>();
+                Index i = new Index();
+                for(String s : i.entries){
+                    StringTokenizer st = new StringTokenizer(s,":");
+                    customers.add(st.nextToken());
+                }
+                i.close();
+                status = true;
+                return customers;
+
+            } catch (Exception e) {
+                if (shouldIWait(e.getMessage())) {
+                    if (!waiting()) {
+                        status = false;
+                        return null;
+                    }
+                    continue;
+                }
+                appendDBDLog(e.getMessage()==null?e.toString():e.getMessage());
+                status = false;
+                return null;
+            }
         }
     }
 }

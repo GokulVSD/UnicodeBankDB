@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
 
 public class Index extends FileCreator{
 
-    private LinkedList<String> entries;
+    public LinkedList<String> entries;
 
     public Index()throws Exception{
         super("index.txt");

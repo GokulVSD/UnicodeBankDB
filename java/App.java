@@ -80,5 +80,9 @@ public class App {
             html = "<h4>System Logs</h4> <div style=\"text-align: left; margin-left: 12%;\"" + html;
             return html;
         });
+
+        get("/getallcustomers", (req, res) -> {
+            return Templates.createcustomer;
+        });
     }
 }
