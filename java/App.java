@@ -1,6 +1,7 @@
 import dbdatabase.*;
 
 import java.io.File;
+import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
@@ -82,7 +83,28 @@ public class App {
         });
 
         get("/getallcustomers", (req, res) -> {
-            return Templates.createcustomer;
+            LinkedList<String> customers = d.getListOfAllCustomers();
+            StringBuilder sb = new StringBuilder("<h4>All Customers</h4>");
+            for(String s:customers){
+                sb.append(getCustomerManagementButton(s,c));
+            }
+            return sb.toString();
         });
+
+        post("/getonecustomer", (req, res) -> {
+            String searchcust = req.queryParams("searchcust");
+            if(!c.doesCustomerExist(searchcust))
+                return "<h4>Customer ID does not exist<h4>";
+            String html = "<h4>Customer ID Match</h4>";
+            html += getCustomerManagementButton(searchcust,c);
+            return html;
+        });
+    }
+
+    static String getCustomerManagementButton(String custname, CustomerDB c){
+        return "<button onclick=\'loadCustomerDetails(\"" + custname + "\")\'><div>Customer ID: " + custname + "</div><div>Access Level: " +
+                (c.getCustomerDetail(custname,"accessLevel").equals("1")?"Administrator":"Regular") +
+                "</div><div>Status: " + (c.isCustomerDeactivated(custname)?"Deactivated":"Activated") +
+                "</div></button>";
     }
 }

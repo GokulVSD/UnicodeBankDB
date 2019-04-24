@@ -84,11 +84,37 @@ function getSystemLogs(){
 
 function manageCustomer(){
     $('#options button').prop('disabled', true);
+    $('#admin-dynamic-1').html("<input type=\"text\" name=\"searchcust\" placeholder=\"Search by Customer ID\">");
+    $("[name='searchcust']").bind("enterKey",function(e){
+       var searchcust = $("[name='searchcust']")[0].value;
+       var re = new RegExp('^[a-zA-Z0-9]+$');
+       if(!re.test(searchcust)){
+           $('#admin-dynamic-2').html("<h4>Customer ID can only contain alphanumeric characters</h4>");
+           return;
+       }
+       var form = {
+                   	'searchcust' : searchcust
+       };
+       $.ajax({
+                   	type: 'POST',
+                   	url: '/getonecustomer',
+                   	data: form,
+                   	success: function(response){
+                          $('#admin-dynamic-2').html(response);
+                   	}
+       });
+    });
+    $("[name='searchcust']").keyup(function(e){
+        if(e.keyCode == 13)
+        {
+            $(this).trigger("enterKey");
+        }
+    });
     $.ajax({
             		type: 'GET',
             		url: '/getallcustomers',
             		success: function(response){
-                        $('#admin-dynamic-1').html(response);
+                        $('#admin-dynamic-2').html(response);
             		}
     });
 }
