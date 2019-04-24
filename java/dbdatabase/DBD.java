@@ -25,7 +25,7 @@ public class DBD implements AccountDB,CustomerDB {
         file = new File(dir,"DBLogs.txt");
     }
 
-    private boolean appendDBDLog(String s){
+    public boolean appendDBDLog(String s){
         try {
             FileWriter fW = new FileWriter(file,true);
             String time = "" + LocalDateTime.now();

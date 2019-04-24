@@ -1,5 +1,6 @@
 var username = null;
 var password = null;
+var accessLevel = null;
 
 function login(){
     if(username === null){
@@ -20,4 +21,63 @@ function login(){
     			$('.login-header').addClass('after-login');
     		}
     	});
+}
+
+function createCustomer(){
+    $('#options button').prop('disabled', true);
+    $.ajax({
+        		type: 'GET',
+        		url: '/createcustomer',
+        		success: function(response){
+                    $('#admin-dynamic-1').html(response);
+        		}
+    });
+}
+
+function custAccessLevel(level){
+    accessLevel = level;
+    $('.alevelbtn').prop('disabled', true);
+}
+
+function submitCustCreate(){
+    var custname = $("[name='custname']")[0].value;
+    var crcuspass = $("[name='crcuspass']")[0].value;
+    var re = new RegExp('^[a-zA-Z0-9]+$');
+    if(!re.test(custname)){
+        $('#admin-dynamic-2').html("<h6>Customer ID can only contain alphanumeric characters</h6>");
+    }
+    else if(accessLevel == null){
+        $('#admin-dynamic-2').html("<h6>Customer access level not specified</h6>");
+    }
+    else if(!re.test(crcuspass)){
+        $('#admin-dynamic-2').html("<h6>Password can only contain alphanumeric characters</h6>");
+    }
+    else{
+        var form = {
+            		'custname' : custname,
+            		'crcuspass' : crcuspass,
+            		'accesslevel' : accessLevel
+        };
+        $.ajax({
+                		type: 'POST',
+                		url: '/newcustomer',
+                		data: form,
+                		success: function(response){
+                            $('#admin-dynamic-2').html(response);
+                            $('.alevelbtn').prop('disabled', false);
+                            accessLevel = null;
+                		}
+        });
+    }
+}
+
+function getSystemLogs(){
+    $('#options button').prop('disabled', true);
+    $.ajax({
+        		type: 'GET',
+        		url: '/getsystemlogs',
+        		success: function(response){
+                    $('#admin-dynamic-1').html(response);
+        		}
+    });
 }

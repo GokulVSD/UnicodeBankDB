@@ -17,4 +17,12 @@ public class Templates {
     static String loginfail = "\n" +
             "<h4 style=\"display: block; margin-bottom: 50px\">Incorrect Credentials</h4>\n" +
             "<button onclick=\"location.href='./'\" class=\"btn btn-warning\">Try Again</button>\n";
+
+    static String createcustomer = "<h4>Create New Customer</h4>\n" +
+            "<input type=\"text\" name=\"custname\" placeholder=\"Customer ID\">\n" +
+            "<h5>Access Level</h5>\n" +
+            "<button class='alevelbtn' onclick=\'custAccessLevel(\"0\")\'>Regular</button>\n" +
+            "<button class='alevelbtn' onclick=\'custAccessLevel(\"1\")\'>Administrator</button>\n" +
+            "<input type=\"password\" name=\"crcuspass\" placeholder=\"Password\">\n" +
+            "<button onclick=\"submitCustCreate()\">Create</button>";
 }

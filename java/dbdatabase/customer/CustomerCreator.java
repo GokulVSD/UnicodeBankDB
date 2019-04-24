@@ -22,7 +22,7 @@ public class CustomerCreator extends FileCreator {
                 new IndexCreator(customerID);
         }
         if(entryExists)
-            throw new Exception("DBDatabase: Customer already exists");
+            throw new Exception("DBDatabase: Customer already exists: " + customerID);
         super.createFile();
     }
 
