@@ -5,6 +5,7 @@ import dbdatabase.index.Index;
 
 import java.util.LinkedList;
 import java.util.StringTokenizer;
+import java.time.LocalDateTime;
 
 public class Account extends Customer {
 
@@ -32,10 +33,11 @@ public class Account extends Customer {
     }
 
     public void appendAccountLog(String log){
+        String time = "" + LocalDateTime.now();
         account = account.substring(0,account.lastIndexOf("!"));
         if(account.charAt(account.length() - 2) == '!')
             account = account.substring(0,account.lastIndexOf(","));
-        account += log + "," + "!";
+        account += time.substring(0,time.indexOf("T")) + " " + time.substring(time.indexOf("T") + 1,time.lastIndexOf(".")).replace(':','@') + " : " + log + "," + "!";
     }
 
     public String[] getLogs(){

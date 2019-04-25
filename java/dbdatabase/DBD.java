@@ -31,7 +31,7 @@ public class DBD implements AccountDB,CustomerDB {
         try {
             FileWriter fW = new FileWriter(file,true);
             String time = "" + LocalDateTime.now();
-            fW.write(time.substring(0,time.indexOf("T")) + "\t" + time.substring(time.indexOf("T") + 1,time.lastIndexOf(".")) + ": " + s + "\n");
+            fW.write(time.substring(0,time.indexOf("T")) + " " + time.substring(time.indexOf("T") + 1,time.lastIndexOf(".")) + ": " + s + "\n");
             fW.close();
             return true;
         } catch (Exception e){

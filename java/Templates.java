@@ -20,6 +20,7 @@ public class Templates {
 
     static String createcustomer = "<h4>Create New Customer</h4>\n" +
             "<input type=\"text\" name=\"custname\" placeholder=\"Customer ID\">\n" +
+            "<input type=\"text\" name=\"custnm\" placeholder=\"Name\">\n" +
             "<h5>Access Level</h5>\n" +
             "<button class='alevelbtn' onclick=\'custAccessLevel(\"0\")\'>Regular</button>\n" +
             "<button class='alevelbtn' onclick=\'custAccessLevel(\"1\")\'>Administrator</button>\n" +

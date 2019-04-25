@@ -41,8 +41,10 @@ function custAccessLevel(level){
 
 function submitCustCreate(){
     var custname = $("[name='custname']")[0].value;
+    var custnm = $("[name='custnm']")[0].value;
     var crcuspass = $("[name='crcuspass']")[0].value;
     var re = new RegExp('^[a-zA-Z0-9]+$');
+    var nmre = new RegExp('^[a-zA-Z]+$');
     if(!re.test(custname)){
         $('#admin-dynamic-2').html("<h6>Customer ID can only contain alphanumeric characters</h6>");
     }
@@ -52,10 +54,14 @@ function submitCustCreate(){
     else if(!re.test(crcuspass)){
         $('#admin-dynamic-2').html("<h6>Password can only contain alphanumeric characters</h6>");
     }
+    else if(!nmre.test(custnm)){
+        $('#admin-dynamic-2').html("<h6>Name is not valid, first name only</h6>");
+    }
     else{
         var form = {
             		'custname' : custname,
             		'crcuspass' : crcuspass,
+            		'custnm' : custnm,
             		'accesslevel' : accessLevel
         };
         $.ajax({
@@ -116,5 +122,21 @@ function manageCustomer(){
             		success: function(response){
                         $('#admin-dynamic-2').html(response);
             		}
+    });
+}
+
+function loadCustomerDetails(custname){
+    $("[name='searchcust']").prop('disabled',true);
+    var form = {
+        'custname': custname,
+        'privileged': "1"
+    };
+    $.ajax({
+                		type: 'POST',
+                		url: '/loadcustomerdetails',
+                		data: form,
+                		success: function(response){
+                            $('#admin-dynamic-2').html(response);
+                		}
     });
 }
