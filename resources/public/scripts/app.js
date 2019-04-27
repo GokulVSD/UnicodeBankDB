@@ -140,3 +140,76 @@ function loadCustomerDetails(custname){
                 		}
     });
 }
+
+function changeCustStatus(custname){
+    var form = {
+        'custname': custname
+    };
+    $.ajax({
+                		type: 'POST',
+                		url: '/changecuststatus',
+                		data: form,
+                		success: function(response){
+                            $('#admin-dynamic-3').html(response);
+                		}
+    });
+}
+
+function changeCustPassword(custname){
+    $('#admin-dynamic-3').html("<input type=\"password\" name=\"chcuspass\" placeholder=\"New Password\"><button onclick=\"chcuspasssub(\'"+custname+"\')\">Change</button>");
+}
+
+function chcuspasssub(custname){
+    var passchange = $("[name='chcuspass']")[0].value;
+    var re = new RegExp('^[a-zA-Z0-9]+$');
+    if(!re.test(passchange)){
+        $('#admin-dynamic-4').html("<h4></h4><h6>Password can only contain alphanumeric characters</h6>");
+        return;
+    }
+    var form = {
+        'custname': custname,
+        'passchange': passchange
+    };
+    $.ajax({
+                		type: 'POST',
+                		url: '/changepass',
+                		data: form,
+                		success: function(response){
+                            $('#admin-dynamic-4').html("<h4></h4><h6>Successfully Changed Password</h6>");
+                		}
+    });
+}
+
+function getListOfAllAccounts(custname){
+    var form = {
+        'custname': custname
+    };
+    $.ajax({
+                		type: 'POST',
+                		url: '/getlistofallaccounts',
+                		data: form,
+                		success: function(response){
+                            $('#admin-dynamic-3').html(response);
+                		}
+    });
+}
+
+function createNewAccount(custname){
+    $(".accbtns").prop('disabled',true);
+}
+
+function getTransferPage(custname){
+    $("[name='searchcust']").prop('disabled',true);
+    var form = {
+        'custname': custname,
+        'privileged': "1"
+    };
+    $.ajax({
+                		type: 'POST',
+                		url: '/loadcustomerdetails',
+                		data: form,
+                		success: function(response){
+                            $('#admin-dynamic-2').html(response);
+                		}
+    });
+}

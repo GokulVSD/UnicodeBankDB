@@ -35,6 +35,10 @@ public class App {
             String password = req.queryParams("password");
 
             if(c.doesCustomerExist(username)){
+                if(c.isCustomerDeactivated(username)) {
+                    d.appendDBDLog("UnicodeBank: Deactivated customer attempted login: " + username);
+                    return Templates.logindeactivated;
+                }
                 if(c.getCustomerDetail(username,"password").equals(password)){
                     d.appendDBDLog("UnicodeBank: Customer login successful: " + username);
                     String time = "" + LocalDateTime.now();
@@ -132,12 +136,53 @@ public class App {
             html += ("<button onclick=\'getTransferPage(\"" + custname + "\")\'>Transfer Funds</button>");
             return html;
         });
+
+        post("/changecuststatus", (req, res) -> {
+            String custname = req.queryParams("custname");
+            if(c.isCustomerDeactivated(custname)) {
+                d.appendDBDLog("UnicodeBank: " + custname + "was activated");
+                c.activateCustomer(custname);
+            }
+            else {
+                d.appendDBDLog("UnicodeBank: " + custname + "was deactivated");
+                c.deactivateCustomer(custname);
+            }
+            return "<h4>Successfully Changed Status</h4>";
+        });
+
+        post("/changepass", (req, res) -> {
+            String custname = req.queryParams("custname");
+            String password = req.queryParams("passchange");
+            c.editCustomerDetail(custname,"password",password);
+            d.appendDBDLog("UnicodeBank: Password was changed for Customer ID: " + custname);
+            return " ";
+        });
+
+        post("/getlistofallaccounts", (req, res) -> {
+            String custname = req.queryParams("custname");
+            StringBuilder sb = new StringBuilder("<h4>Accounts</h4>");
+            sb.append("<button class=\"accbtns\" onclick=\'createNewAccount(\"" + custname + "\")\'>Create New Account</button>");
+            String[] accounts = a.getListofAccounts(custname);
+            sb.append("<h4>All Accounts</h4");
+            if(accounts != null)
+                for(String s:accounts)
+                    sb.append(getAccountButton(s,a));
+            else
+                sb.append("<h6>No Accounts Exist</h6>");
+            return sb.toString();
+        });
     }
 
     static String getCustomerManagementButton(String custname, CustomerDB c){
-        return "<button onclick=\'loadCustomerDetails(\"" + custname + "\")\'><div>Customer ID: " + custname + "</div><div>Access Level: " +
+        return "<button class=\"accbtns\" onclick=\'loadCustomerDetails(\"" + custname + "\")\'><div>Customer ID: " + custname + "</div><div>Access Level: " +
                 (c.getCustomerDetail(custname,"accessLevel").equals("1")?"Administrator":"Regular") +
                 "</div><div>Status: " + (c.isCustomerDeactivated(custname)?"Deactive":"Active") +
+                "</div></button>";
+    }
+
+    static String getAccountButton(String accno,AccountDB a){
+        return "<button onclick=\'loadAccountDetails(\"" + accno + "\")\'><div>Account No: " + accno + "</div><div>Type: " +
+                a.getAccountDetail(accno,"type") + "</div><div>Status: " + (a.isAccountOpen(accno)?"Open":"Closed") +
                 "</div></button>";
     }
 }
