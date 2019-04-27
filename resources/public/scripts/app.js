@@ -148,9 +148,9 @@ function changeName(custname){
 }
 
 function chcusnamesub(custname){
-    var anemchange = $("[name='chcusname']")[0].value;
+    var namechange = $("[name='chcusname']")[0].value;
     var re = new RegExp('^[a-zA-Z]+$');
-    if(!re.test(passchange)){
+    if(!re.test(namechange)){
         $('#admin-dynamic-4').html("<h4></h4><h6>Name is not valid, first name only</h6>");
         return;
     }
