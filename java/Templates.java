@@ -30,4 +30,14 @@ public class Templates {
             "<button class='alevelbtn' onclick=\'custAccessLevel(\"1\")\'>Administrator</button>\n" +
             "<input type=\"password\" name=\"crcuspass\" placeholder=\"Password\">\n" +
             "<button onclick=\"submitCustCreate()\">Create</button>";
+
+    static String createaccount(String custname){
+        return "<h4>Create New Account</h4>\n" +
+                "<input type=\"text\" name=\"accname\" placeholder=\"Account Name\">\n" +
+                "<h5>Account Type</h5>\n" +
+                "<button class='acctypebtn' onclick=\'setAccType(\"transaction\")\'>Transaction</button>\n" +
+                "<button class='acctypebtn' onclick=\'setAccType(\"savings\")\'>Savings</button>\n" +
+                "<div></div>" +
+                "<button onclick=\"submitCreateAccount(\'" + custname + "\')\">Create</button>";
+    }
 }

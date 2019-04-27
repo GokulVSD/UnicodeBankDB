@@ -1,6 +1,7 @@
 var username = null;
 var password = null;
 var accessLevel = null;
+var accType = null;
 
 function login(){
     if(username === null){
@@ -46,16 +47,16 @@ function submitCustCreate(){
     var re = new RegExp('^[a-zA-Z0-9]+$');
     var nmre = new RegExp('^[a-zA-Z]+$');
     if(!re.test(custname)){
-        $('#admin-dynamic-2').html("<h6>Customer ID can only contain alphanumeric characters</h6>");
+        $('#admin-dynamic-2').html("<h4></h4><h6>Customer ID can only contain alphanumeric characters</h6>");
     }
     else if(accessLevel == null){
-        $('#admin-dynamic-2').html("<h6>Customer access level not specified</h6>");
+        $('#admin-dynamic-2').html("<h4></h4><h6>Customer access level not specified</h6>");
     }
     else if(!re.test(crcuspass)){
-        $('#admin-dynamic-2').html("<h6>Password can only contain alphanumeric characters</h6>");
+        $('#admin-dynamic-2').html("<h4></h4><h6>Password can only contain alphanumeric characters</h6>");
     }
     else if(!nmre.test(custnm)){
-        $('#admin-dynamic-2').html("<h6>Name is not valid, first name only</h6>");
+        $('#admin-dynamic-2').html("<h4></h4><h6>Name is not valid, first name only</h6>");
     }
     else{
         var form = {
@@ -141,7 +142,34 @@ function loadCustomerDetails(custname){
     });
 }
 
+function changeName(custname){
+    $('.custmanbtns').prop('disabled', true);
+    $('#admin-dynamic-3').html("<input type=\"text\" name=\"chcusname\" placeholder=\"New Name\"><button onclick=\"chcusnamesub(\'"+custname+"\')\">Change</button>");
+}
+
+function chcusnamesub(custname){
+    var anemchange = $("[name='chcusname']")[0].value;
+    var re = new RegExp('^[a-zA-Z]+$');
+    if(!re.test(passchange)){
+        $('#admin-dynamic-4').html("<h4></h4><h6>Name is not valid, first name only</h6>");
+        return;
+    }
+    var form = {
+        'custname': custname,
+        'namechange': namechange
+    };
+    $.ajax({
+                		type: 'POST',
+                		url: '/changename',
+                		data: form,
+                		success: function(response){
+                            $('#admin-dynamic-4').html("<h4></h4><h6>Successfully Changed Name</h6>");
+                		}
+    });
+}
+
 function changeCustStatus(custname){
+    $('.custmanbtns').prop('disabled', true);
     var form = {
         'custname': custname
     };
@@ -156,6 +184,7 @@ function changeCustStatus(custname){
 }
 
 function changeCustPassword(custname){
+    $('.custmanbtns').prop('disabled', true);
     $('#admin-dynamic-3').html("<input type=\"password\" name=\"chcuspass\" placeholder=\"New Password\"><button onclick=\"chcuspasssub(\'"+custname+"\')\">Change</button>");
 }
 
@@ -181,6 +210,7 @@ function chcuspasssub(custname){
 }
 
 function getListOfAllAccounts(custname){
+    $('.custmanbtns').prop('disabled', true);
     var form = {
         'custname': custname
     };
@@ -196,9 +226,57 @@ function getListOfAllAccounts(custname){
 
 function createNewAccount(custname){
     $(".accbtns").prop('disabled',true);
+    var form = {
+            'custname': custname
+        };
+    $.ajax({
+                    		type: 'POST',
+                    		url: '/getacccreationpage',
+                    		data: form,
+                    		success: function(response){
+                                $('#admin-dynamic-4').html(response);
+                    		}
+        });
+}
+
+function setAccType(acctype){
+    accType = acctype;
+    $('.acctypebtn').prop('disabled', true);
+}
+
+function submitCreateAccount(custname){
+    var accname = $("[name='accname']")[0].value;
+    var re = new RegExp('^[a-zA-Z0-9]+$');
+    if(!re.test(accname)){
+        $('#admin-dynamic-5').html("<h4></h4><h6>Account Name Can Only Contain Alphanumeric Characters</h6>");
+    } else if(accType == null){
+        $('#admin-dynamic-5').html("<h4></h4><h6>Account Type Not Specified</h6>");
+    }
+    else{
+        var form = {
+            		'custname' : custname,
+            		'acctype' : accType,
+            		'accname' : accname
+        };
+        $.ajax({
+                		type: 'POST',
+                		url: '/newaccount',
+                		data: form,
+                		success: function(response){
+                            $('#admin-dynamic-5').html(response);
+                            $('.acctypebtn').prop('disabled', false);
+                            accType = null;
+                		}
+        });
+    }
+}
+
+function loadAccountDetails(accno){
+    $('.accbtns').prop('disabled', true);
 }
 
 function getTransferPage(custname){
+    $('.custmanbtns').prop('disabled', true);
     $("[name='searchcust']").prop('disabled',true);
     var form = {
         'custname': custname,

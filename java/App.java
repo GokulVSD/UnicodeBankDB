@@ -3,6 +3,7 @@ import dbdatabase.*;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
@@ -124,17 +125,25 @@ public class App {
             html += ("<h6>Created: " + c.getCustomerDetail(custname,"createdon").replace('@',':') + "</h6>");
             html += ("<h6>Last Login: " + c.getCustomerDetail(custname,"lastlogin").replace('@',':') + "</h6>");
             html += ("<h6>Access Level: " + (c.getCustomerDetail(custname,"accessLevel").equals("1")?"Administrator":"Regular") + "</h6>");
-            html += ("<h6>Customer Status: " + (c.isCustomerDeactivated(custname)?"Deactive":"Active") + "</h6>");
+            html += ("<h6>Status: " + (c.isCustomerDeactivated(custname)?"Deactive":"Active") + "</h6>");
             html += ("<h4>Options</h4>");
             if(admin.equals("1")){
-                html += ("<button onclick=\'changeName(\"" + custname + "\")\'>Change Name</button>");
-                html += ("<button onclick=\'changeAccessLevel(\"" + custname + "\")\'>" + (c.getCustomerDetail(custname,"accessLevel").equals("1")?"Demote Access Level":"Promote to Administrator") + "</button>");
+                html += ("<button class=\"custmanbtns\" onclick=\'changeName(\"" + custname + "\")\'>Change Name</button>");
+                html += ("<button class=\"custmanbtns\" onclick=\'changeAccessLevel(\"" + custname + "\")\'>" + (c.getCustomerDetail(custname,"accessLevel").equals("1")?"Demote Access Level":"Promote to Administrator") + "</button>");
             }
-            html += ("<button onclick=\'changeCustStatus(\"" + custname + "\")\'>" + (c.isCustomerDeactivated(custname)?"Activate":"Deactivate") + " Customer</button>");
-            html += ("<button onclick=\'changeCustPassword(\"" + custname + "\")\'>Change Password</button>");
-            html += ("<button onclick=\'getListOfAllAccounts(\"" + custname + "\")\'>View/Modify Accounts</button>");
-            html += ("<button onclick=\'getTransferPage(\"" + custname + "\")\'>Transfer Funds</button>");
+            html += ("<button class=\"custmanbtns\" onclick=\'changeCustStatus(\"" + custname + "\")\'>" + (c.isCustomerDeactivated(custname)?"Activate":"Deactivate") + "</button>");
+            html += ("<button class=\"custmanbtns\" onclick=\'changeCustPassword(\"" + custname + "\")\'>Change Password</button>");
+            html += ("<button class=\"custmanbtns\" onclick=\'getListOfAllAccounts(\"" + custname + "\")\'>View / Modify Accounts</button>");
+            html += ("<button class=\"custmanbtns\" onclick=\'getTransferPage(\"" + custname + "\")\'>Transfer Funds</button>");
             return html;
+        });
+
+        post("/changename", (req, res) -> {
+            String custname = req.queryParams("custname");
+            String name = req.queryParams("namechange");
+            c.editCustomerDetail(custname,"name",name);
+            d.appendDBDLog("UnicodeBank: Password was changed for Customer ID: " + custname);
+            return " ";
         });
 
         post("/changecuststatus", (req, res) -> {
@@ -160,10 +169,10 @@ public class App {
 
         post("/getlistofallaccounts", (req, res) -> {
             String custname = req.queryParams("custname");
-            StringBuilder sb = new StringBuilder("<h4>Accounts</h4>");
-            sb.append("<button class=\"accbtns\" onclick=\'createNewAccount(\"" + custname + "\")\'>Create New Account</button>");
+            StringBuilder sb = new StringBuilder("<h4>New Account</h4>");
+            sb.append("<button class=\"accbtns\" onclick=\'createNewAccount(\"" + custname + "\")\'>Create</button>");
             String[] accounts = a.getListofAccounts(custname);
-            sb.append("<h4>All Accounts</h4");
+            sb.append("<h4>Accounts</h4>");
             if(accounts != null)
                 for(String s:accounts)
                     sb.append(getAccountButton(s,a));
@@ -171,17 +180,41 @@ public class App {
                 sb.append("<h6>No Accounts Exist</h6>");
             return sb.toString();
         });
+
+        post("/getacccreationpage", (req, res) -> {
+            String custname = req.queryParams("custname");
+            return Templates.createaccount(custname);
+        });
+
+        post("/newaccount", (req, res) -> {
+            String custname = req.queryParams("custname");
+            String accname = req.queryParams("accname");
+            String acctype = req.queryParams("acctype");
+            String accno;
+            Random rnd = new Random();
+            do {
+                StringBuilder sb = new StringBuilder(10);
+                for (int i = 0; i < 10; i++)
+                    sb.append((char) ('0' + rnd.nextInt(10)));
+                accno = sb.toString();
+            } while (a.doesAccountExist(accno));
+            a.createNewAccount(custname,accno);
+            a.editAccountDetail(accno,"name",accname);
+            a.editAccountDetail(accno,"type",acctype);
+            return "<h4></h4><h6>Successfully Created Account with Account Number: " + accno;
+        });
     }
 
     static String getCustomerManagementButton(String custname, CustomerDB c){
-        return "<button class=\"accbtns\" onclick=\'loadCustomerDetails(\"" + custname + "\")\'><div>Customer ID: " + custname + "</div><div>Access Level: " +
+        return "<button onclick=\'loadCustomerDetails(\"" + custname + "\")\'><div>Customer ID: " + custname + "</div><div>Access Level: " +
                 (c.getCustomerDetail(custname,"accessLevel").equals("1")?"Administrator":"Regular") +
                 "</div><div>Status: " + (c.isCustomerDeactivated(custname)?"Deactive":"Active") +
                 "</div></button>";
     }
 
     static String getAccountButton(String accno,AccountDB a){
-        return "<button onclick=\'loadAccountDetails(\"" + accno + "\")\'><div>Account No: " + accno + "</div><div>Type: " +
+        return "<button class=\"accbtns\" onclick=\'loadAccountDetails(\"" + accno + "\")\'><div>Name: " + a.getAccountDetail(accno,"name") + "</div>" +
+                "<div>Account No: " + accno + "</div><div>Type: " +
                 a.getAccountDetail(accno,"type") + "</div><div>Status: " + (a.isAccountOpen(accno)?"Open":"Closed") +
                 "</div></button>";
     }
