@@ -1,4 +1,5 @@
 import dbdatabase.*;
+import jdk.vm.ci.meta.Local;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -199,14 +200,31 @@ public class App {
                 accno = sb.toString();
             } while (a.doesAccountExist(accno));
             a.createNewAccount(custname,accno);
+            a.appendAccountLog(accno,"DBDatabase: New account for Customer ID: "+custname+" created with Number: "+accno);
             a.editAccountDetail(accno,"name",accname);
+            String time = "" + LocalDateTime.now();
+            a.editAccountDetail(accno,"createdon",time.substring(0,time.indexOf("T")) + " " + time.substring(time.indexOf("T") + 1,time.lastIndexOf(".")).replace(':','@'));
+            a.editAccountDetail(accno,"balance","0.0");
             a.editAccountDetail(accno,"type",acctype);
             return "<h4></h4><h6>Successfully Created Account with Account Number: " + accno;
+        });
+
+        post("/getaccountpage", (req, res) -> {
+            String accno = req.queryParams("accno");
+            boolean admin = req.queryParams("privileged").equals("1");
+            return Templates.accountpage(accno,admin,a);
+        });
+
+        post("/alterbalance", (req, res) -> {
+            String accno = req.queryParams("accno");
+            String balance = req.queryParams("balance");
+            a.editAccountDetail(accno,"balance",balance);
+            return " ";
         });
     }
 
     static String getCustomerManagementButton(String custname, CustomerDB c){
-        return "<button onclick=\'loadCustomerDetails(\"" + custname + "\")\'><div>Customer ID: " + custname + "</div><div>Access Level: " +
+        return "<button onclick=\'loadCustomerDetails(\"" + custname + "\")\'><div><h5>Customer ID: " + custname + "</h5></div><div>Access Level: " +
                 (c.getCustomerDetail(custname,"accessLevel").equals("1")?"Administrator":"Regular") +
                 "</div><div>Status: " + (c.isCustomerDeactivated(custname)?"Deactive":"Active") +
                 "</div></button>";

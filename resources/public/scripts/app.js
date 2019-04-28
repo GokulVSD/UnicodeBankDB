@@ -273,6 +273,41 @@ function submitCreateAccount(custname){
 
 function loadAccountDetails(accno){
     $('.accbtns').prop('disabled', true);
+    var form = {
+        'accno' : accno
+        'privileged' : '1'
+    }
+    $.ajax({
+                    		type: 'POST',
+                    		url: '/getaccountpage',
+                    		data: form,
+                    		success: function(response){
+                                $('#admin-dynamic-4').html(response);
+                    		}
+    });
+}
+
+function alterAccountBalance(accno){
+    $('.accmanbtns').prop('disabled', true);
+    $('#admin-dynamic-5').html("<h4></h4>"+
+    "<input type=\"number\" step=\"any\" name=\"alterbalance\" placeholder=\"New Balance\"</input>"+
+    +"<button onclick=\"alterBalance('" + accno + "')\">Change</button>");
+}
+
+function alterBalance(accno){
+    var newbalance = $("[name='alterbalance']")[0].value;
+    var form = {
+        'accno' : accno,
+        'balance' : newbalance
+    };
+    $.ajax({
+                    		type: 'POST',
+                    		url: '/alterbalance',
+                    		data: form,
+                    		success: function(response){
+                                $('#admin-dynamic-6').html("<h4></h4><h6>Successfully Changed Balance for Account Number: "+accno+" to: ₹ "+newbalance+"</h6>");
+                    		}
+    });
 }
 
 function getTransferPage(custname){
