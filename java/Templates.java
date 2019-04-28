@@ -53,10 +53,12 @@ public class Templates {
                 "<h5>Balance: ₹ " + a.getAccountDetail(accno,"balance") + "</h6>" +
                 "<h4>Options</h4>" +
                 (admin? "<button class=\"accmanbtns\" onclick=\'alterAccountBalance(\"" + accno + "\")\'>Alter Balance</button>" +
-                        "<button class=\"accmanbtns\" onclick=\'reopenAccount(\"" + accno + "\")\'>Reopen Account</button>"
+                        (a.isAccountOpen(accno)?"":"<button class=\"accmanbtns\" onclick=\'reopenAccount(\"" + accno + "\")\'>Reopen Account</button>")
                         :"") +
                 "<button class=\"accmanbtns\" onclick=\'changeAccountName(\"" + accno + "\")\'>Change Name</button>" +
                 (a.isAccountOpen(accno)?"<button class=\"accmanbtns\" onclick=\'closeAccount(\"" + accno + "\")\'>Close Account</button>":"") +
+                "<button class=\"accmanbtns\" onclick=\'getAccLogs(\"" + accno + "\")\'>View Account Log</button>" +
+                "<button class=\"accmanbtns\" onclick=\'deleteAccount(\"" + accno + "\")\'>Delete Account</button>" +
                 "<button class=\"accmanbtns\" onclick=\'transferFundsFrom(\"" + accno + "\")\'>Transfer Funds</button>";
     }
 }

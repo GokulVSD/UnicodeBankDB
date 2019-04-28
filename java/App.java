@@ -219,7 +219,43 @@ public class App {
             String accno = req.queryParams("accno");
             String balance = req.queryParams("balance");
             a.editAccountDetail(accno,"balance",balance);
+            a.appendAccountLog(accno,"UnicodeBank: Admin altered balance for Account Number :"+accno+" to: ₹ "+balance);
             return " ";
+        });
+
+        post("/reopenaccount", (req, res) -> {
+            String accno = req.queryParams("accno");
+            String custname = req.queryParams("custname");
+            a.reopenAccount(custname,accno);
+            a.appendAccountLog(accno,"UnicodeBank: Admin reopened Account Number: "+accno);
+            return " ";
+        });
+
+        post("/changeaccname", (req, res) -> {
+            String accno = req.queryParams("accno");
+            String name = req.queryParams("name");
+            a.editAccountDetail(accno,"name",name);
+            a.appendAccountLog(accno,"UnicodeBank: Name Changed for Account Number: "+accno);
+            return " ";
+        });
+
+        post("/closeaccount", (req, res) -> {
+            String accno = req.queryParams("accno");
+            String custname = req.queryParams("custname");
+            a.closeAccount(custname,accno);
+            a.appendAccountLog(accno,"UnicodeBank: Closed Account with Number: "+accno);
+            return " ";
+        });
+
+        post("/getacclogs", (req, res) -> {
+            String accno = req.queryParams("accno");
+            a.appendAccountLog(accno,"UnicodeBank: Accesed Logs of Account Number: "+accno);
+            String[] content = a.getLogs(accno);
+            String html = "</div>";
+            for(int i=content.length-1;i!=0;i--)
+                html = "<h6>" + content[i] + "</h6>" + html;
+            html = "<h4>System Logs</h4><h4></h4> <div style=\"text-align: left; margin-left: 12%;\"" + html;
+            return html;
         });
     }
 

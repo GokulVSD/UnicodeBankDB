@@ -2,6 +2,7 @@ var username = null;
 var password = null;
 var accessLevel = null;
 var accType = null;
+var referringToCustID = null;
 
 function login(){
     if(username === null){
@@ -210,6 +211,7 @@ function chcuspasssub(custname){
 }
 
 function getListOfAllAccounts(custname){
+    referringToCustID = custname;
     $('.custmanbtns').prop('disabled', true);
     var form = {
         'custname': custname
@@ -306,6 +308,84 @@ function alterBalance(accno){
                     		data: form,
                     		success: function(response){
                                 $('#admin-dynamic-6').html("<h4></h4><h6>Successfully Changed Balance for Account Number: "+accno+" to: ₹ "+newbalance+"</h6>");
+                    		}
+    });
+}
+
+function reopenAccount(accno){
+    $('.accmanbtns').prop('disabled', true);
+    $('#admin-dynamic-5').html("<h4></h4><h6>Successfuly reopened Account with Number: "+accno"</h6>");
+    var form = {
+        'accno' : accno,
+        'custname' : referringToCustID
+    };
+    $.ajax({
+                    		type: 'POST',
+                    		url: '/reopenaccount',
+                    		data: form,
+                    		success: function(response){
+                                return;
+                    		}
+    });
+}
+
+function changeAccountName(accno){
+    $('.accmanbtns').prop('disabled', true);
+    $('#admin-dynamic-5').html("<h4></h4>"+
+        "<input type=\"text\" name=\"changeaccname\" placeholder=\"New Name\"</input>"+
+        +"<button onclick=\"changeAccName('" + accno + "')\">Change</button>");
+}
+
+function changeAccName(accno){
+    var newname = $("[name='changeaccname']")[0].value;
+    var re = new RegExp('^[a-zA-Z0-9]+$');
+        if(!re.test(accname)){
+            $('#admin-dynamic-6').html("<h4></h4><h6>Account Name Can Only Contain Alphanumeric Characters</h6>");
+        }
+        else{
+            var form = {
+                'accno' : accno,
+                'name' : newname
+            };
+            $.ajax({
+                                		type: 'POST',
+                                		url: '/changeaccname',
+                                		data: form,
+                                		success: function(response){
+                                            $('#admin-dynamic-6').html("<h4></h4><h6>Successfully Changed Name for Account Number: "+accno+"</h6>");
+                                		}
+            });
+        }
+}
+
+function closeAccount(accno){
+    $('.accmanbtns').prop('disabled', true);
+    $('#admin-dynamic-5').html("<h4></h4><h6>Successfuly closed Account with Number: "+accno"</h6>");
+    var form = {
+        'accno' : accno,
+        'custname' : referringToCustID
+    };
+    $.ajax({
+                    		type: 'POST',
+                    		url: '/closeaccount',
+                    		data: form,
+                    		success: function(response){
+                                return;
+                    		}
+    });
+}
+
+function getAccLogs(accno){
+    $('.accmanbtns').prop('disabled', true);
+    var form = {
+        'accno' : accno
+    };
+    $.ajax({
+                    		type: 'POST',
+                    		url: '/getacclogs',
+                    		data: form,
+                    		success: function(response){
+                                $('#admin-dynamic-5').html(response);
                     		}
     });
 }
