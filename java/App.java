@@ -257,6 +257,13 @@ public class App {
             html = "<h4>System Logs</h4><h4></h4> <div style=\"text-align: left; margin-left: 12%;\"" + html;
             return html;
         });
+
+        post("/deleteaccount", (req, res) -> {
+            String accno = req.queryParams("accno");
+            a.deleteAccount(accno);
+            d.appendDBDLog("DBDatabase: Deleted Account with Number: "+accno);
+            return " ";
+        });
     }
 
     static String getCustomerManagementButton(String custname, CustomerDB c){

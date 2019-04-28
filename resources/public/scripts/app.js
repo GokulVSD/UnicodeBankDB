@@ -360,7 +360,6 @@ function changeAccName(accno){
 
 function closeAccount(accno){
     $('.accmanbtns').prop('disabled', true);
-    $('#admin-dynamic-5').html("<h4></h4><h6>Successfuly closed Account with Number: "+accno"</h6>");
     var form = {
         'accno' : accno,
         'custname' : referringToCustID
@@ -370,7 +369,7 @@ function closeAccount(accno){
                     		url: '/closeaccount',
                     		data: form,
                     		success: function(response){
-                                return;
+                                $('#admin-dynamic-5').html("<h4></h4><h6>Successfuly closed Account with Number: "+accno"</h6>");
                     		}
     });
 }
@@ -390,19 +389,67 @@ function getAccLogs(accno){
     });
 }
 
+function deleteAccount(accno){
+    $('.accmanbtns').prop('disabled', true);
+    var form = {
+        'accno' : accno
+    };
+    $.ajax({
+                    		type: 'POST',
+                    		url: '/deleteaccount',
+                    		data: form,
+                    		success: function(response){
+                                $('#admin-dynamic-5').html("<h4></h4><h6>Successfully Deleted Account with Number: "+accno+"</h6>");
+                    		}
+    });
+}
+
+function transferFundsFrom(accno){
+    $('.accmanbtns').prop('disabled', true);
+    $('#admin-dynamic-5').html("<h4></h4><input type=\"number\" name=\"transferto\" placeholder=\"Recipient Account Number\">"+
+    "<input type=\"number\" step=\"any\" name=\"amount\" placeholder=\"Amount\">" +
+    "<button onclick=\"sendMoney('"+accno+"'\">");
+}
+
+function sendMoney(accno){
+    var toacc = $("[name='transferto']")[0].value;
+    var amount = $("[name='amount']")[0].value;
+    var form = {
+        'fromacc' : accno,
+        'toacc' : toacc,
+        'amount' : amount
+    };
+    $.ajax({
+                    		type: 'POST',
+                    		url: '/sendmoney',
+                    		data: form,
+                    		success: function(response){
+                    		    if(response == 'success')
+                                    $('#admin-dynamic-6').html("<h4></h4><h6>Successfully Transferred ₹ "+ amount +" from: "+accno+" to: "+toacc+"</h6>");
+                                else if(response == 'nofunds')
+                                    $('#admin-dynamic-6').html("<h4></h4><h6>Failed to Transfer as Sender: "+accno+" Has Insufficient Funds</h6>");
+                                else if(response == 'toaccountnoexist')
+                                    $('#admin-dynamic-6').html("<h4></h4><h6>Failed to Transfer as Recipient: "+toacc+" Does Not Exist</h6>");
+                                else if(response == 'toaccclosed')
+                                    $('#admin-dynamic-6').html("<h4></h4><h6>Failed to Transfer as Recipient: "+toacc+" Account is Closed</h6>");
+                                else
+                                    $('#admin-dynamic-6').html("<h4></h4><h6>Failed to Transfer as Sender and Recipient Accounts Are The Same</h6>");
+                    		}
+    });
+}
+
 function getTransferPage(custname){
     $('.custmanbtns').prop('disabled', true);
     $("[name='searchcust']").prop('disabled',true);
     var form = {
         'custname': custname,
-        'privileged': "1"
     };
     $.ajax({
                 		type: 'POST',
-                		url: '/loadcustomerdetails',
+                		url: '/getvalidaccountsfortransfer',
                 		data: form,
                 		success: function(response){
-                            $('#admin-dynamic-2').html(response);
+                            $('#admin-dynamic-4').html(response);
                 		}
     });
 }

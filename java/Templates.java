@@ -59,6 +59,6 @@ public class Templates {
                 (a.isAccountOpen(accno)?"<button class=\"accmanbtns\" onclick=\'closeAccount(\"" + accno + "\")\'>Close Account</button>":"") +
                 "<button class=\"accmanbtns\" onclick=\'getAccLogs(\"" + accno + "\")\'>View Account Log</button>" +
                 "<button class=\"accmanbtns\" onclick=\'deleteAccount(\"" + accno + "\")\'>Delete Account</button>" +
-                "<button class=\"accmanbtns\" onclick=\'transferFundsFrom(\"" + accno + "\")\'>Transfer Funds</button>";
+                (a.isAccountOpen(accno)&&a.getAccountDetail(accno,"type").equals("transaction")?"<button class=\"accmanbtns\" onclick=\'transferFundsFrom(\"" + accno + "\")\'>Transfer Funds</button>":"");
     }
 }
