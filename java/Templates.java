@@ -17,6 +17,20 @@ public class Templates {
             "<div id=\"admin-dynamic-5\"></div>\n" +
             "<div id=\"admin-dynamic-6\"></div>";
 
+    static String regular(String custname) {
+        return "<button onclick=\"login()\" class=\"btn btn-warning\">Reset</button>\n" +
+                "<h5 style=\"display: inline-block; vertical-align: middle; margin-left: 25px; margin-right: 25px; margin-top: 28px; font-size: 32px; border: 3px solid #FFFFFF; padding-bottom: 6px; padding-top: 3px; padding-left: 8px; padding-right: 8px; border-radius: 20px\">Customer</h5>\n" +
+                "<button onclick=\"location.href='./'\" class=\"btn btn-warning\">Logout</button>\n" +
+                "<h5>ID: " + custname +"</h5>" +
+                "<button onclick=\'loadCustomerDetails(\"" + custname + "\",\"0\")\'>Start Session</button>"+
+                "<div id=\"admin-dynamic-1\"></div>\n" +
+                "<div id=\"admin-dynamic-2\"></div>\n" +
+                "<div id=\"admin-dynamic-3\"></div>\n" +
+                "<div id=\"admin-dynamic-4\"></div>\n" +
+                "<div id=\"admin-dynamic-5\"></div>\n" +
+                "<div id=\"admin-dynamic-6\"></div>";
+    }
+
     static String loginfail = "\n" +
             "<h4 style=\"display: block; margin-bottom: 50px\">Incorrect Credentials</h4>\n" +
             "<button onclick=\"location.href='./'\" class=\"btn btn-warning\">Try Again</button>\n";
@@ -53,12 +67,12 @@ public class Templates {
                 "<h5>Balance: ₹ " + a.getAccountDetail(accno,"balance") + "</h6>" +
                 "<h4>Options</h4>" +
                 (admin? "<button class=\"accmanbtns\" onclick=\'alterAccountBalance(\"" + accno + "\")\'>Alter Balance</button>" +
+                        "<button class=\"accmanbtns\" onclick=\'deleteAccount(\"" + accno + "\")\'>Delete Account</button>" +
                         (a.isAccountOpen(accno)?"":"<button class=\"accmanbtns\" onclick=\'reopenAccount(\"" + accno + "\")\'>Reopen Account</button>")
                         :"") +
                 "<button class=\"accmanbtns\" onclick=\'changeAccountName(\"" + accno + "\")\'>Change Name</button>" +
                 (a.isAccountOpen(accno)?"<button class=\"accmanbtns\" onclick=\'closeAccount(\"" + accno + "\")\'>Close Account</button>":"") +
                 "<button class=\"accmanbtns\" onclick=\'getAccLogs(\"" + accno + "\")\'>View Account Log</button>" +
-                "<button class=\"accmanbtns\" onclick=\'deleteAccount(\"" + accno + "\")\'>Delete Account</button>" +
                 (a.isAccountOpen(accno)&&a.getAccountDetail(accno,"type").equals("transaction")?"<button class=\"accmanbtns\" onclick=\'transferFundsFrom(\"" + accno + "\")\'>Transfer Funds</button>":"");
     }
 }

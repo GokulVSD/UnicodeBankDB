@@ -127,11 +127,11 @@ function manageCustomer(){
     });
 }
 
-function loadCustomerDetails(custname){
+function loadCustomerDetails(custname,priva){
     $("[name='searchcust']").prop('disabled',true);
     var form = {
         'custname': custname,
-        'privileged': "1"
+        'privileged': priva
     };
     $.ajax({
                 		type: 'POST',
@@ -273,11 +273,11 @@ function submitCreateAccount(custname){
     }
 }
 
-function loadAccountDetails(accno){
+function loadAccountDetails(accno,priva){
     $('.accbtns').prop('disabled', true);
     var form = {
-        'accno' : accno
-        'privileged' : '1'
+        'accno' : accno,
+        'privileged' : priva
     }
     $.ajax({
                     		type: 'POST',
@@ -292,8 +292,8 @@ function loadAccountDetails(accno){
 function alterAccountBalance(accno){
     $('.accmanbtns').prop('disabled', true);
     $('#admin-dynamic-5').html("<h4></h4>"+
-    "<input type=\"number\" step=\"any\" name=\"alterbalance\" placeholder=\"New Balance\"</input>"+
-    +"<button onclick=\"alterBalance('" + accno + "')\">Change</button>");
+    "<input type=\"number\" step=\"any\" name=\"alterbalance\" placeholder=\"New Balance\">"+
+    "<button onclick=\'alterBalance(\"" + accno + "\")\'>Change</button>");
 }
 
 function alterBalance(accno){
@@ -307,14 +307,14 @@ function alterBalance(accno){
                     		url: '/alterbalance',
                     		data: form,
                     		success: function(response){
-                                $('#admin-dynamic-6').html("<h4></h4><h6>Successfully Changed Balance for Account Number: "+accno+" to: ₹ "+newbalance+"</h6>");
+                                $('#admin-dynamic-6').html("<h4></h4><h6>Successfully Changed Balance for Account Number: "+accno+" to: Rs. "+newbalance+"</h6>");
                     		}
     });
 }
 
 function reopenAccount(accno){
     $('.accmanbtns').prop('disabled', true);
-    $('#admin-dynamic-5').html("<h4></h4><h6>Successfuly reopened Account with Number: "+accno"</h6>");
+    $('#admin-dynamic-5').html("<h4></h4><h6>Successfuly reopened Account with Number: "+accno+"</h6>");
     var form = {
         'accno' : accno,
         'custname' : referringToCustID
@@ -369,7 +369,10 @@ function closeAccount(accno){
                     		url: '/closeaccount',
                     		data: form,
                     		success: function(response){
-                                $('#admin-dynamic-5').html("<h4></h4><h6>Successfuly closed Account with Number: "+accno"</h6>");
+                    		    if(response == "success")
+                                    $('#admin-dynamic-5').html("<h4></h4><h6>Successfuly closed Account with Number: "+accno+"</h6>");
+                                else
+                                    $('#admin-dynamic-5').html("<h4></h4><h6>Failed to close Account with Number: "+accno+" As Account Has Balance</h6>");
                     		}
     });
 }

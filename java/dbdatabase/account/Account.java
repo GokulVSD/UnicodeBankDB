@@ -37,7 +37,7 @@ public class Account extends Customer {
         account = account.substring(0,account.lastIndexOf("!"));
         if(account.charAt(account.length() - 2) == '!')
             account = account.substring(0,account.lastIndexOf(","));
-        account += time.substring(0,time.indexOf("T")) + " " + time.substring(time.indexOf("T") + 1,time.lastIndexOf(".")).replace(':','@') + " : " + log + "," + "!";
+        account += time.substring(0,time.indexOf("T")) + " " + time.substring(time.indexOf("T") + 1,time.lastIndexOf(".")).replace(':','@') + " > " + log + "," + "!";
     }
 
     public String[] getLogs(){

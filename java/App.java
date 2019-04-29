@@ -1,5 +1,4 @@
 import dbdatabase.*;
-import jdk.vm.ci.meta.Local;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -51,7 +50,7 @@ public class App {
                     }
                     else{
                         //regular
-                        return "successful regular customer";
+                        return Templates.regular(username);
                     }
                 }
             }
@@ -174,10 +173,14 @@ public class App {
             sb.append("<button class=\"accbtns\" onclick=\'createNewAccount(\"" + custname + "\")\'>Create</button>");
             String[] accounts = a.getListofAccounts(custname);
             sb.append("<h4>Accounts</h4>");
+            boolean flag = true;
             if(accounts != null)
-                for(String s:accounts)
-                    sb.append(getAccountButton(s,a));
-            else
+                for(String s:accounts) {
+                    if(a.getAccountDetail(s,"name") == null) continue;
+                    flag = false;
+                    sb.append(getAccountButton(s, a, c, custname));
+                }
+            if(flag)
                 sb.append("<h6>No Accounts Exist</h6>");
             return sb.toString();
         });
@@ -200,7 +203,7 @@ public class App {
                 accno = sb.toString();
             } while (a.doesAccountExist(accno));
             a.createNewAccount(custname,accno);
-            a.appendAccountLog(accno,"DBDatabase: New account for Customer ID: "+custname+" created with Number: "+accno);
+            a.appendAccountLog(accno,"DBDatabase> New account for Customer ID> "+custname+" created with Number> "+accno);
             a.editAccountDetail(accno,"name",accname);
             String time = "" + LocalDateTime.now();
             a.editAccountDetail(accno,"createdon",time.substring(0,time.indexOf("T")) + " " + time.substring(time.indexOf("T") + 1,time.lastIndexOf(".")).replace(':','@'));
@@ -219,7 +222,7 @@ public class App {
             String accno = req.queryParams("accno");
             String balance = req.queryParams("balance");
             a.editAccountDetail(accno,"balance",balance);
-            a.appendAccountLog(accno,"UnicodeBank: Admin altered balance for Account Number :"+accno+" to: ₹ "+balance);
+            a.appendAccountLog(accno,"UnicodeBank> Admin altered balance for Account Number> "+accno+" to> ₹ "+balance);
             return " ";
         });
 
@@ -227,7 +230,7 @@ public class App {
             String accno = req.queryParams("accno");
             String custname = req.queryParams("custname");
             a.reopenAccount(custname,accno);
-            a.appendAccountLog(accno,"UnicodeBank: Admin reopened Account Number: "+accno);
+            a.appendAccountLog(accno,"UnicodeBank> Admin reopened Account Number> "+accno);
             return " ";
         });
 
@@ -235,25 +238,27 @@ public class App {
             String accno = req.queryParams("accno");
             String name = req.queryParams("name");
             a.editAccountDetail(accno,"name",name);
-            a.appendAccountLog(accno,"UnicodeBank: Name Changed for Account Number: "+accno);
+            a.appendAccountLog(accno,"UnicodeBank> Name Changed for Account Number> "+accno);
             return " ";
         });
 
         post("/closeaccount", (req, res) -> {
             String accno = req.queryParams("accno");
             String custname = req.queryParams("custname");
+            if((new Double(a.getAccountDetail(accno,"balance"))) > 0.01 || (new Double(a.getAccountDetail(accno,"balance"))) < -0.01)
+                return "fail";
             a.closeAccount(custname,accno);
-            a.appendAccountLog(accno,"UnicodeBank: Closed Account with Number: "+accno);
-            return " ";
+            a.appendAccountLog(accno,"UnicodeBank> Closed Account with Number> "+accno);
+            return "success";
         });
 
         post("/getacclogs", (req, res) -> {
             String accno = req.queryParams("accno");
-            a.appendAccountLog(accno,"UnicodeBank: Accesed Logs of Account Number: "+accno);
+            a.appendAccountLog(accno,"UnicodeBank> Accesed Logs of Account Number> "+accno);
             String[] content = a.getLogs(accno);
             String html = "</div>";
             for(int i=content.length-1;i!=0;i--)
-                html = "<h6>" + content[i] + "</h6>" + html;
+                html = "<h6>" + content[i].replace('@',':') + "</h6>" + html;
             html = "<h4>System Logs</h4><h4></h4> <div style=\"text-align: left; margin-left: 12%;\"" + html;
             return html;
         });
@@ -264,17 +269,56 @@ public class App {
             d.appendDBDLog("DBDatabase: Deleted Account with Number: "+accno);
             return " ";
         });
+
+        post("/sendmoney", (req, res) -> {
+            String fromacc = req.queryParams("fromacc");
+            String toacc = req.queryParams("toacc");
+            String amount = req.queryParams("amount");
+            if(!a.doesAccountExist(toacc))
+                return "toaccountnoexist";
+            if(!a.isAccountOpen(toacc))
+                return "toaccclosed";
+            if(fromacc.equals(toacc))
+                return " ";
+            Double transfer = new Double(amount);
+            Double balance = new Double(a.getAccountDetail(fromacc,"balance"));
+            Double tobalance = new Double(a.getAccountDetail(toacc,"balance"));
+            if(balance<transfer)
+                return "nofunds";
+            balance -= transfer;
+            tobalance +=transfer;
+            a.editAccountDetail(fromacc,"balance","" + balance);
+            a.editAccountDetail(toacc,"balance","" + tobalance);
+            d.appendDBDLog("DBDatabase: Transfered: ₹ "+amount+" from Acc No: "+fromacc+" to Acc No: "+toacc);
+            a.appendAccountLog("fromacc","DBDatabase> Transfered> ₹ "+amount+" from Acc No> "+fromacc+" to Acc No> "+toacc);
+            a.appendAccountLog("toacc","DBDatabase> Transfered> ₹ "+amount+" from Acc No> "+fromacc+" to Acc No> "+toacc);
+            return "success";
+        });
+
+        post("/getvalidaccountsfortransfer", (req, res) -> {
+            String custname = req.queryParams("custname");
+            String[] accounts = a.getListofAccounts(custname);
+            if(accounts == null)
+                return "<h4></h4><h5>No Available accounts To Send From</h5>";
+            StringBuilder sb = new StringBuilder("<h4>Select Sender Account</h4>");
+            for(String account:accounts){
+                if(a.isAccountOpen(account)){
+                    sb.append("<button onclick=\'transferFundsFrom(\"" + account + "\")\'></button>");
+                }
+            }
+            return sb.toString();
+        });
     }
 
     static String getCustomerManagementButton(String custname, CustomerDB c){
-        return "<button onclick=\'loadCustomerDetails(\"" + custname + "\")\'><div><h5>Customer ID: " + custname + "</h5></div><div>Access Level: " +
+        return "<button onclick=\'loadCustomerDetails(\"" + custname + "\",\"1\")\'><div><h5>Customer ID: " + custname + "</h5></div><div>Access Level: " +
                 (c.getCustomerDetail(custname,"accessLevel").equals("1")?"Administrator":"Regular") +
                 "</div><div>Status: " + (c.isCustomerDeactivated(custname)?"Deactive":"Active") +
                 "</div></button>";
     }
 
-    static String getAccountButton(String accno,AccountDB a){
-        return "<button class=\"accbtns\" onclick=\'loadAccountDetails(\"" + accno + "\")\'><div>Name: " + a.getAccountDetail(accno,"name") + "</div>" +
+    static String getAccountButton(String accno,AccountDB a,CustomerDB c,String custname){
+        return "<button class=\"accbtns\" onclick=\'loadAccountDetails(\"" + accno + "\",\""+c.getCustomerDetail(custname,"accessLevel")+"\")\'><div>Name: " + a.getAccountDetail(accno,"name") + "</div>" +
                 "<div>Account No: " + accno + "</div><div>Type: " +
                 a.getAccountDetail(accno,"type") + "</div><div>Status: " + (a.isAccountOpen(accno)?"Open":"Closed") +
                 "</div></button>";
