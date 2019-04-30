@@ -128,6 +128,7 @@ function manageCustomer(){
 }
 
 function loadCustomerDetails(custname,priva){
+    $("#hideme").hide();
     $("[name='searchcust']").prop('disabled',true);
     var form = {
         'custname': custname,
@@ -333,13 +334,13 @@ function changeAccountName(accno){
     $('.accmanbtns').prop('disabled', true);
     $('#admin-dynamic-5').html("<h4></h4>"+
         "<input type=\"text\" name=\"changeaccname\" placeholder=\"New Name\"</input>"+
-        +"<button onclick=\"changeAccName('" + accno + "')\">Change</button>");
+        "<button onclick=\"changeAccName('" + accno + "')\">Change</button>");
 }
 
 function changeAccName(accno){
     var newname = $("[name='changeaccname']")[0].value;
     var re = new RegExp('^[a-zA-Z0-9]+$');
-        if(!re.test(accname)){
+        if(!re.test(accno)){
             $('#admin-dynamic-6').html("<h4></h4><h6>Account Name Can Only Contain Alphanumeric Characters</h6>");
         }
         else{
@@ -409,9 +410,9 @@ function deleteAccount(accno){
 
 function transferFundsFrom(accno){
     $('.accmanbtns').prop('disabled', true);
-    $('#admin-dynamic-5').html("<h4></h4><input type=\"number\" name=\"transferto\" placeholder=\"Recipient Account Number\">"+
+    $('#admin-dynamic-5').html("<h4></h4><input name=\"transferto\" placeholder=\"Recipient Account Number\">"+
     "<input type=\"number\" step=\"any\" name=\"amount\" placeholder=\"Amount\">" +
-    "<button onclick=\"sendMoney('"+accno+"'\">");
+    "<button onclick=\"sendMoney('"+accno+"')\">Transfer</button>");
 }
 
 function sendMoney(accno){
@@ -428,7 +429,7 @@ function sendMoney(accno){
                     		data: form,
                     		success: function(response){
                     		    if(response == 'success')
-                                    $('#admin-dynamic-6').html("<h4></h4><h6>Successfully Transferred ₹ "+ amount +" from: "+accno+" to: "+toacc+"</h6>");
+                                    $('#admin-dynamic-6').html("<h4></h4><h6>Successfully Transferred Rs. "+ amount +" from: "+accno+" to: "+toacc+"</h6>");
                                 else if(response == 'nofunds')
                                     $('#admin-dynamic-6').html("<h4></h4><h6>Failed to Transfer as Sender: "+accno+" Has Insufficient Funds</h6>");
                                 else if(response == 'toaccountnoexist')
@@ -454,5 +455,42 @@ function getTransferPage(custname){
                 		success: function(response){
                             $('#admin-dynamic-4').html(response);
                 		}
+    });
+}
+
+function stateTransfer(){
+    $('#options button').prop('disabled', true);
+    $.ajax({
+                    		type: 'GET',
+                    		url: '/getstatetransfer',
+                    		success: function(response){
+                                $('#admin-dynamic-1').html(response);
+                    		}
+    });
+}
+
+function makeABackup(){
+    $('.disableme').prop('disabled', true);
+    $.ajax({
+                        		type: 'GET',
+                        		url: '/makeabackup',
+                        		success: function(response){
+                                    $('#admin-dynamic-2').html(response);
+                        		}
+    });
+}
+
+function restoreToState(name){
+    $('.disableme').prop('disabled', true);
+    var form = {
+        'name' : name
+    };
+    $.ajax({
+                            		type: 'POST',
+                            		url: '/restoretostate',
+                            		data: form,
+                            		success: function(response){
+                                        $('#admin-dynamic-2').html(response);
+                            		}
     });
 }

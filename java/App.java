@@ -93,9 +93,9 @@ public class App {
             String content = sc.next().trim();
             StringTokenizer st = new StringTokenizer(content, "\n");
             String html = "</div>";
-            while(st.hasMoreTokens())
+            while(st.hasMoreTokens());
                 html = "<h6>" + st.nextToken() + "</h6>" + html;
-            html = "<h4>System Logs</h4><h4></h4> <div style=\"text-align: left; margin-left: 12%;\"" + html;
+            html = "<h4>System Logs</h4><div style=\"text-align: left; margin-left: 12%;\"" + html;
             return html;
         });
 
@@ -221,6 +221,9 @@ public class App {
         post("/alterbalance", (req, res) -> {
             String accno = req.queryParams("accno");
             String balance = req.queryParams("balance");
+            double bal = new Double(balance);
+            int rbal = (int)(bal*100);
+            balance = "" + (rbal/100.0);
             a.editAccountDetail(accno,"balance",balance);
             a.appendAccountLog(accno,"UnicodeBank> Admin altered balance for Account Number> "+accno+" to> ₹ "+balance);
             return " ";
@@ -257,9 +260,9 @@ public class App {
             a.appendAccountLog(accno,"UnicodeBank> Accesed Logs of Account Number> "+accno);
             String[] content = a.getLogs(accno);
             String html = "</div>";
-            for(int i=content.length-1;i!=0;i--)
+            for(int i=0;i<content.length;i++)
                 html = "<h6>" + content[i].replace('@',':') + "</h6>" + html;
-            html = "<h4>System Logs</h4><h4></h4> <div style=\"text-align: left; margin-left: 12%;\"" + html;
+            html = "<h4>System Logs</h4><div style=\"text-align: left; margin-left: 12%;\"" + html;
             return html;
         });
 
@@ -274,6 +277,9 @@ public class App {
             String fromacc = req.queryParams("fromacc");
             String toacc = req.queryParams("toacc");
             String amount = req.queryParams("amount");
+            double bal = new Double(amount);
+            int rbal = (int)(bal*100);
+            amount = "" + (rbal/100.0);
             if(!a.doesAccountExist(toacc))
                 return "toaccountnoexist";
             if(!a.isAccountOpen(toacc))
@@ -281,17 +287,31 @@ public class App {
             if(fromacc.equals(toacc))
                 return " ";
             Double transfer = new Double(amount);
-            Double balance = new Double(a.getAccountDetail(fromacc,"balance"));
-            Double tobalance = new Double(a.getAccountDetail(toacc,"balance"));
+            String frombal = a.getAccountDetail(fromacc,"balance");
+            String tobal = a.getAccountDetail(toacc,"balance");
+            bal = new Double(frombal);
+            rbal = (int)(bal*100);
+            frombal = "" + (rbal/100.0);
+            bal = new Double(tobal);
+            rbal = (int)(bal*100);
+            tobal = "" + (rbal/100.0);
+            Double balance = new Double(frombal);
+            Double tobalance = new Double(tobal);
             if(balance<transfer)
                 return "nofunds";
             balance -= transfer;
             tobalance +=transfer;
-            a.editAccountDetail(fromacc,"balance","" + balance);
-            a.editAccountDetail(toacc,"balance","" + tobalance);
+            bal = balance;
+            rbal = (int)(bal*100);
+            frombal = "" + (rbal/100.0);
+            bal = tobalance;
+            rbal = (int)(bal*100);
+            tobal = "" + (rbal/100.0);
+            a.editAccountDetail(fromacc,"balance","" + frombal);
+            a.editAccountDetail(toacc,"balance","" + tobal);
             d.appendDBDLog("DBDatabase: Transfered: ₹ "+amount+" from Acc No: "+fromacc+" to Acc No: "+toacc);
-            a.appendAccountLog("fromacc","DBDatabase> Transfered> ₹ "+amount+" from Acc No> "+fromacc+" to Acc No> "+toacc);
-            a.appendAccountLog("toacc","DBDatabase> Transfered> ₹ "+amount+" from Acc No> "+fromacc+" to Acc No> "+toacc);
+            a.appendAccountLog(fromacc,"DBDatabase> Transfered> ₹ "+amount+" from Acc No> "+fromacc+" to Acc No> "+toacc);
+            a.appendAccountLog(toacc,"DBDatabase> Transfered> ₹ "+amount+" from Acc No> "+fromacc+" to Acc No> "+toacc);
             return "success";
         });
 
@@ -302,9 +322,24 @@ public class App {
                 return "<h4></h4><h5>No Available accounts To Send From</h5>";
             StringBuilder sb = new StringBuilder("<h4>Select Sender Account</h4>");
             for(String account:accounts){
-                if(a.isAccountOpen(account)){
-                    sb.append("<button onclick=\'transferFundsFrom(\"" + account + "\")\'></button>");
+                if(a.isAccountOpen(account) && a.getAccountDetail(account,"type").equals("transaction")){
+                    sb.append("<button onclick=\'transferFundsFrom(\"" + account + "\")\'>" +
+                            "<h5>" + a.getAccountDetail(account,"name") + "</h5>" +
+                            "<h6>Account No: " + account + "</h6>" +
+                            "<h6>Balance: ₹ " + a.getAccountDetail(account,"balance") + "</h6>" +
+                            "</button>");
                 }
+            }
+            return sb.toString();
+        });
+
+        get("/getstatetransfer", (req, res) -> {
+            StringBuilder sb = new StringBuilder("<h4>State Transfer</h4><button class=\"disableme\" onclick=\"makeABackup()\">Create Backup</button>");
+            sb.append("<h4></h4><h5>Available Backups</h5>");
+            LinkedList<String> names = getStateTransferNames();
+            if(names == null) sb.append("<h6>No Available Backups</h6>");
+            else for(String s:names){
+                sb.append("<button class=\"disableme\" onclick=\'restoreToState(\""+s+"\")\'>"+s+"</button>");
             }
             return sb.toString();
         });
@@ -322,5 +357,12 @@ public class App {
                 "<div>Account No: " + accno + "</div><div>Type: " +
                 a.getAccountDetail(accno,"type") + "</div><div>Status: " + (a.isAccountOpen(accno)?"Open":"Closed") +
                 "</div></button>";
+    }
+    static LinkedList<String > getStateTransferNames(){
+        LinkedList<String > names = new LinkedList<>();
+        names.add("solamon");
+        names.add("oh my lawd");
+        if(names.size() == 0) return null;
+        return names;
     }
 }
