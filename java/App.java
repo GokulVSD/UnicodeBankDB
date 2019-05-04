@@ -93,7 +93,7 @@ public class App {
             String content = sc.next().trim();
             StringTokenizer st = new StringTokenizer(content, "\n");
             String html = "</div>";
-            while(st.hasMoreTokens());
+            while(st.hasMoreTokens())
                 html = "<h6>" + st.nextToken() + "</h6>" + html;
             html = "<h4>System Logs</h4><div style=\"text-align: left; margin-left: 12%;\"" + html;
             return html;
@@ -262,7 +262,7 @@ public class App {
             String html = "</div>";
             for(int i=0;i<content.length;i++)
                 html = "<h6>" + content[i].replace('@',':') + "</h6>" + html;
-            html = "<h4>System Logs</h4><div style=\"text-align: left; margin-left: 12%;\"" + html;
+            html = "<h4>Account Logs</h4><div style=\"text-align: left; margin-left: 12%;\"" + html;
             return html;
         });
 
@@ -336,12 +336,27 @@ public class App {
         get("/getstatetransfer", (req, res) -> {
             StringBuilder sb = new StringBuilder("<h4>State Transfer</h4><button class=\"disableme\" onclick=\"makeABackup()\">Create Backup</button>");
             sb.append("<h4></h4><h5>Available Backups</h5>");
-            LinkedList<String> names = getStateTransferNames();
+            LinkedList<String> names = Backups.getStateTransferNames();
             if(names == null) sb.append("<h6>No Available Backups</h6>");
             else for(String s:names){
                 sb.append("<button class=\"disableme\" onclick=\'restoreToState(\""+s+"\")\'>"+s+"</button>");
             }
             return sb.toString();
+        });
+
+        get("/makeabackup", (req, res) -> {
+            Backups b = new Backups();
+            b.makeBackup();
+            b.save();
+            return "<h4></h4><h5>Successfully Created Backup</h5>";
+        });
+
+        post("/restoretostate", (req, res) -> {
+            String name = req.queryParams("name");
+            Backups b = new Backups();
+            b.restoreFromBackup(name);
+            b.save();
+            return "<h4></h4><h5>Successfully Restored From Backup</h5>";
         });
     }
 
@@ -357,12 +372,5 @@ public class App {
                 "<div>Account No: " + accno + "</div><div>Type: " +
                 a.getAccountDetail(accno,"type") + "</div><div>Status: " + (a.isAccountOpen(accno)?"Open":"Closed") +
                 "</div></button>";
-    }
-    static LinkedList<String > getStateTransferNames(){
-        LinkedList<String > names = new LinkedList<>();
-        names.add("solamon");
-        names.add("oh my lawd");
-        if(names.size() == 0) return null;
-        return names;
     }
 }

@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 public class DB {
 
-    private static LinkedList<String> customersCurrentlyBeingUsed = new LinkedList<>();
+    public static LinkedList<String> customersCurrentlyBeingUsed = new LinkedList<>();
     private static boolean indexFileBeingUsed = false;
 
     public static void useIndex() {
@@ -28,6 +28,7 @@ public class DB {
     }
 
     public static boolean isCustomerBeingUsed(String CustomerID) {
+        if(customersCurrentlyBeingUsed == null) return true;
         if (customersCurrentlyBeingUsed.contains(CustomerID)) return true;
         else return false;
     }
