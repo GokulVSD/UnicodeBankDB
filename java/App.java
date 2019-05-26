@@ -167,6 +167,17 @@ public class App {
             return " ";
         });
 
+        post("/changeacclevelofcust", (req, res) -> {
+            String custname = req.queryParams("custname");
+            if(c.getCustomerDetail(custname,"accessLevel").equals("1")){
+                c.editCustomerDetail(custname,"accessLevel","0");
+            } else {
+                c.editCustomerDetail(custname,"accessLevel","1");
+            }
+            d.appendDBDLog("UnicodeBank: Access level was changed for Customer ID: " + custname);
+            return "<h4>Successfully Changed Access Level</h4>";
+        });
+
         post("/getlistofallaccounts", (req, res) -> {
             String custname = req.queryParams("custname");
             StringBuilder sb = new StringBuilder("<h4>New Account</h4>");

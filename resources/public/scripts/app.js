@@ -3,8 +3,10 @@ var password = null;
 var accessLevel = null;
 var accType = null;
 var referringToCustID = null;
+var amAdmin = "0";
 
 function login(){
+    amAdmin = "0";
     if(username === null){
     		username = $("[name='username']")[0].value;
     		password = $("[name='password']")[0].value;
@@ -91,6 +93,7 @@ function getSystemLogs(){
 }
 
 function manageCustomer(){
+    amAdmin = "1";
     $('#options button').prop('disabled', true);
     $('#admin-dynamic-1').html("<input type=\"text\" name=\"searchcust\" placeholder=\"Search by Customer ID\">");
     $("[name='searchcust']").bind("enterKey",function(e){
@@ -132,7 +135,7 @@ function loadCustomerDetails(custname,priva){
     $("[name='searchcust']").prop('disabled',true);
     var form = {
         'custname': custname,
-        'privileged': priva
+        'privileged': amAdmin
     };
     $.ajax({
                 		type: 'POST',
@@ -182,6 +185,21 @@ function changeCustStatus(custname){
                 		success: function(response){
                             $('#admin-dynamic-3').html(response);
                 		}
+    });
+}
+
+function changeAccessLevel(custname){
+    $('.custmanbtns').prop('disabled', true);
+        var form = {
+            'custname': custname
+    };
+    $.ajax({
+                    		type: 'POST',
+                    		url: '/changeacclevelofcust',
+                    		data: form,
+                    		success: function(response){
+                                $('#admin-dynamic-3').html(response);
+                    		}
     });
 }
 
@@ -278,7 +296,7 @@ function loadAccountDetails(accno,priva){
     $('.accbtns').prop('disabled', true);
     var form = {
         'accno' : accno,
-        'privileged' : priva
+        'privileged' : amAdmin
     }
     $.ajax({
                     		type: 'POST',
